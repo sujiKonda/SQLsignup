@@ -9,37 +9,72 @@ function DashBoard() {
     const navigate = useNavigate();
     const userDta = useSelector((state)=> state?.userStore?.userData);
 
-    const [passwordData, setPasswordData] = useState({oldPassword:'',newPassword:'', confirmPssword:""});
+    const initialValues = { password: "", confirmpassword:"" };
+    const [formValues, setFormValues] = useState(initialValues);
+    const [formErrors, setFormErrors] = useState({});
+    const [submit, setSubmit] = useState(false);
+    const [change, setChnage] = useState(false);
 
-    const {oldPassword,newPassword,confirmPssword} = passwordData;
+    const handleChange = (e) => {
+      const { name, value } = e.target;
+      setFormValues({ ...formValues, [name]: value });
+    };
 
-    const [chnagePassword, setChangePassword] = useState(false);
+    const validate = (values) => {
 
-    const handleChnagePassword = (e)=>{
+      const errors = {};
+  
+      const passwordValid =  /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_])[^\s]{4,10}$/;
+  
+      if (!values.password) {
+        errors.password = "Password is required";
+      } else if (values.password.length < 4) {
+        errors.password = "Password must be more than 4 characters";
+      } else if (values.password.length > 10) {
+        errors.password = "Password cannot exceed more than 10 characters";
+      } else if(!passwordValid.test(values.password)){
+        errors.password = "Password format ex: Password@1";
+      }
+  
+      if (!values.confirmpassword) {
+          errors.confirmpassword = "Confirm password is required";
+        } else if (values.confirmpassword.length < 4) {
+          errors.confirmpassword = "Confirm password must be more than 4 characters";
+        } else if (values.confirmpassword.length > 10) {
+          errors.confirmpassword = "Confirm password cannot exceed more than 10 characters";
+        } else if(!passwordValid.test(values.confirmpassword)){
+          errors.confirmpassword = "Confirm password format ex: Password@1";
+        }else if (values.password !== values.confirmpassword){
+          errors.confirmpassword = 'Confirm password and Confirm password Should match'
+        }
+      return errors;
+    };
+
+    const handleSubmit = (e)=>{
+      console.log('form submittedddddddddd')
         e.preventDefault();
-       if(newPassword!==confirmPssword){
-        toast('New password and Confirm password are not same!',{position:'top-right',
-        autoClose:5000,
-        hideProgressBar:false,
-        newestOnTop:false,
-        closeOnClick:true,
-        rtl:false});
-       }else{
+        setFormErrors(validate(formValues));
+        setSubmit(true);
+    }
 
+    useEffect(()=>{
+
+      if (Object.keys(formErrors).length === 0 && submit) {
+
+        const { password, confirmpassword } = formValues;
         let params = {
           path: 'user',
           body :{
               email:userDta?.email,
-              password:newPassword,
-              oldPassword:oldPassword
+              password,
           }
       }
       axiosPut(params)
         .then(function (response) {
           console.log(response?.data?.data)
           if(response?.data?.status){
-          setChangePassword(false);
-          setPasswordData({oldPassword:'',newPassword:'', confirmPssword:""})
+          setFormValues({password:'', confirmpassword:""})
+          setChnage(false);
           toast.success(response?.data?.data, {position: toast.POSITION.TOP_RIGHT})
         }
           
@@ -47,51 +82,49 @@ function DashBoard() {
         .catch(function (error) {
           toast.error(error?.response?.data?.error, {position: toast.POSITION.TOP_RIGHT})
         })
-       }
-    }
+      }else{
+        console.log(Object.keys(formErrors).length === 0 && submit)
+      }
 
-    useEffect(()=>{
-        if(Object.keys(userDta).length<=0){
-            navigate('./')
-        }
-    }, [userDta])
+    },[formErrors,submit])
 
-
-  useEffect(()=>{
-    if(Object.keys(userDta).length<=0){
-      navigate('/')
-    }
-  }, [])
+    
 
   return (
-    <div>
-       <h2>Mail and Password Settings</h2>
-       <p>
-        Registerd mail: {userDta?.email ? userDta.email : 'email is not there'}
-       </p>
-       {!chnagePassword && <button type="Button" onClick={()=>setChangePassword(true)}>Change Password</button>} 
-       <br/>
-
-       {chnagePassword && 
-       <form onSubmit={(e)=>handleChnagePassword(e)}>
-        <label htmlFor="oldpassword">Old Password:    </label>
-        <input style={{margin:"20px"}} value={oldPassword} onChange={(e)=>setPasswordData({...passwordData,oldPassword:e.target.value})} type="password" id="oldpassword" name="oldpassword" required/>
-        <br/>
-        <label htmlFor="newpassword">New Password:    </label>
-        <input minLength={6} style={{margin:"20px"}} value={newPassword} onChange={(e)=>setPasswordData({...passwordData,newPassword:e.target.value})} type="password" id="newpassword" name="newpassword" required/>
-        <br/>
-        <label htmlFor="confirmpassword">Confirm Password:   </label>
-        <input  minLength={6} style={{margin:"20px"}} value={confirmPssword} onChange={(e)=>setPasswordData({...passwordData,confirmPssword:e.target.value})} type="password" id="confirmpassword" name="confirmpassword" required/>
-
-        <br/>
-
-        <button type="Submit" >Save</button>
-        
-        </form>} 
-       <p>
-
-       </p>
-
+    <div className="container">
+      <form onSubmit={handleSubmit}>
+        <h1>Reset Password</h1>
+        <div className="ui divider"></div>
+        <div className="ui form">
+          <h4>User name: {userDta?.username}</h4>
+          <h4>Email: {userDta?.email} </h4>
+          {change ? <><div className="field">
+            <label>Password</label>
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formValues.password}
+              onChange={handleChange}
+            />
+          </div>
+          <p>{formErrors.password}</p>
+          <div className="field">
+            <label>Confirm Password</label>
+            <input
+              type="password"
+              name="confirmpassword"
+              placeholder="Confirm Password"
+              value={formValues.confirmpassword}
+              onChange={handleChange}
+            />
+          </div>
+          <p>{formErrors.confirmpassword}</p>
+          <button type="Submit" className="fluid ui button blue">Submit</button></> 
+          : <button type="button" onClick={()=>{setChnage(true)}}>change</button>}
+          
+        </div>
+      </form>
     </div>
   )
 }

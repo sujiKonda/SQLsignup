@@ -7,9 +7,9 @@ async function main(req) {
         const body = req.body
         const {email, otp,password} = body
         if (email && email!== "" && otp && otp ==='12345' && password && password!=='') {
-            const updated = await dbquery(`UPDATE users SET password = '${password}' WHERE email = '${email}'`)
+            const updated = await dbquery(`UPDATE users SET password = '${password}' WHERE email = '${email}' and blockedCount < 3`)
             if (updated.status) {
-                return success(updated)
+                return success({status:true, Message:"Password reset was done!"})
             }
             return failure(ErrorCodes.BAD_REQUEST, { status: false, error: "User Not Exist" })
         } else {

@@ -7,13 +7,13 @@ async function main(req) {
         const query = req.query
         console.log('queryyy:::::::',query);
         if (query && query.email && query.email !== "" && query.password && query.password!=="") {
-            const payload = await dbquery(`select * from users where email = '${query.email}' AND password ='${query.password}' `)
+            const payload = await dbquery(`select * from users where email = '${query.email}' AND password ='${query.password}' AND blockedCount < 3 `)
             if (payload.data.length > 0) {
                 console.log('payload::::::::',payload)
                 let token = jwt.sign({ _id: payload.data[0].userid }, process.env.skey, { expiresIn: '24h' });
                 return success({ status: true, data: token })
             } else {
-                return failure(ErrorCodes.BAD_REQUEST, { status: false, error: "Invalid user" })
+                return failure(ErrorCodes.BAD_REQUEST, { status: false, error: "Password or Email are wrong" })
             }
         } else if (query && query.userId && query.userId !== "") {
             const payload = await dbquery(`select * from users where userid = '${query.userId}'`)

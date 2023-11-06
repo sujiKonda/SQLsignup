@@ -8,13 +8,13 @@ import { userPayload } from './ReduxStore';
 export const socketContext = createContext(null)
 
 export const handlePayload = () => {
-  return new Promise((resolve)=>{
-    gettoken()
-    .then((res => res && axiosGet({path:"currentUser"})
-      .then(res => resolve(res))
-      .catch(e=> console.log(".....:)", e)) 
-    )).catch((e)=> console.log("....:)", e))
-  })
+return new Promise((resolve)=>{
+gettoken()
+.then((res => res && axiosGet({path:"currentUser"})
+.then(res => resolve(res))
+.catch(e=> console.log(".....:)", e)) 
+)).catch((e)=> console.log("....:)", e))
+})
 }
 
 function App() {
@@ -23,15 +23,15 @@ function App() {
   const userDta = useSelector((state)=> state?.userStore?.userData)
 
   useEffect(()=>{
-    handlePayload().then((res=> res?.status && dispatch(userPayload(res?.data)))).catch(e=>console.log("e.....:)", e))
+  handlePayload().then((res=> res?.status && dispatch(userPayload(res?.data)))).catch(e=>console.log("e.....:)", e))
   }, []);
 
   
   return (
     <div>
-      <socketContext.Provider value ={{userDta}}>
-        <NavigateRoutes/>
-     </socketContext.Provider>
+<socketContext.Provider value ={{userDta}}>
+       <NavigateRoutes/>
+</socketContext.Provider>
      <ToastContainer
         position='top-right'
         autoClose={5000}

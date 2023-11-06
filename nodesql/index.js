@@ -69,14 +69,15 @@ const routes = require('./routes')
 app.use('/', routes)
 
 
-app.get("/createemployee", (req, res) => {
-    let sql = "CREATE TABLE users(id int PRIMARY KEY AUTO_INCREMENT, password VARCHAR(50), email VARCHAR(100) UNIQUE, userid VARCHAR(100) UNIQUE NOT NULL, blockedCount INT, otp INT)";
+app.get("/createTable", (req, res) => {
+    let sql = "CREATE TABLE users(id int PRIMARY KEY AUTO_INCREMENT, password VARCHAR(50), email VARCHAR(100) UNIQUE, userid VARCHAR(100) UNIQUE NOT NULL, blockedCount INT, otp INT, username VARCHAR(20))";
 
     db.query(sql, (err) => {
         if (err) {
             throw err;
         }
-        res.send("Employee table created");
+        console.log(res)
+        res.send("Users table created");
     });
 });
 

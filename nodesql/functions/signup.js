@@ -5,10 +5,10 @@ const { v4: uuidv4 } = require('uuid');
 async function main(req) {
     try {
         const body = req.body
-        const {password, email} = body;
-        if (email && email !== "" && password && password !=='' ) {
-            const createUser = "INSERT INTO users (userId, password, email) VALUES (?, ?, ?)";
-            let item = [uuidv4(), password , email]
+        const {password, email, username} = body;
+        if (email && email !== "" && password && password !=='' && username && username!=="" ) {
+            const createUser = "INSERT INTO users (userId, password, email,username, blockedCount) VALUES (?, ?, ?, ?, ?)";
+            let item = [uuidv4(), password , email, username, 0]
             let results = await dbinsert(createUser, item)
             console.log(results)
             if (results.status) {
